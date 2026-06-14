@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useAuthStore } from '../../stores/authStore';
 import { Shield, ShieldCheck, LogOut } from 'lucide-react';
+import SyncIndicator from '../common/SyncIndicator';
 
 export default function Header() {
   const { role, logout } = useAuthStore();
@@ -15,6 +16,8 @@ export default function Header() {
       </div>
 
       <div className="flex items-center gap-4">
+        <SyncIndicator />
+
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
