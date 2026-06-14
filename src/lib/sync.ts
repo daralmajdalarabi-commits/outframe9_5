@@ -31,7 +31,8 @@ let lastUpdatedRemote = '';
 const listeners: Array<(data: GistData) => void> = [];
 
 async function rawFetch(): Promise<GistData | null> {
-  const res = await fetch(RAW_URL);
+  const cacheBuster = `?t=${Date.now()}`;
+  const res = await fetch(RAW_URL + cacheBuster);
   if (!res.ok) return null;
   return (await res.json()) as GistData;
 }
