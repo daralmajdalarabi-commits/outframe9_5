@@ -31,7 +31,7 @@ export const useFinanceStore = create<FinanceStore>((set, get) => ({
     if (remote) {
       await db.costs.clear();
       await db.costs.bulkAdd(remote.costs);
-      set({ costs: remote.costs });
+      set({ costs: remote.costs, loading: false });
     } else {
       const costs = await db.costs.orderBy('date').reverse().toArray();
       set({ costs });

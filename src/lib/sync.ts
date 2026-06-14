@@ -92,9 +92,8 @@ export async function pushAllData(): Promise<boolean> {
 }
 
 export function startPolling(cb: (data: GistData) => void): void {
-  if (!listeners.includes(cb)) {
-    listeners.push(cb);
-  }
+  listeners.length = 0;
+  listeners.push(cb);
   if (pollingTimer) return;
   pollingTimer = setInterval(async () => {
     try {
