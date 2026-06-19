@@ -22,6 +22,7 @@ export interface WaitingItem {
 export interface WaitingTask {
   id: string;
   waitingItemId: string;
+  title: string;
   details: string;
   assignedTo: string;
   completed: boolean;
@@ -34,6 +35,17 @@ export interface Attachment {
   type: string;
   data: string;
   size: number;
+}
+
+export interface OrgTask {
+  id: string;
+  title: string;
+  details: string;
+  assignedTo: string;
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  completed: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Cost {

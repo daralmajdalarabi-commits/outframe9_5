@@ -50,6 +50,10 @@ export default function WaitingPage() {
       const q = search.toLowerCase();
       result = result.filter((i) => i.clientName.toLowerCase().includes(q) || i.projectName.toLowerCase().includes(q));
     }
+    result.sort((a, b) => {
+      const order = { 'in-progress': 0, 'pending': 1, 'completed': 2 };
+      return (order[a.status] ?? 1) - (order[b.status] ?? 1);
+    });
     return result;
   }, [items, tab, search]);
 
@@ -142,7 +146,6 @@ export default function WaitingPage() {
                 tasks={tasks}
                 onEdit={(i) => { setEditing(i); setModal(true); }}
                 onDelete={(id) => { deleteItem(id); notify('success', 'Request deleted'); }}
-                onComplete={handleComplete}
                 onOpen={(i) => setDetailItem(i)}
               />
             ))}
@@ -163,6 +166,15 @@ export default function WaitingPage() {
       <Modal isOpen={!!detailItem} onClose={() => setDetailItem(null)} title={detailItem?.clientName || ''}>
         {detailItem && (
           <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-2">
+              <span className={`badge text-xs ${
+                detailItem.status === 'completed' ? 'bg-[#00C853]/15 text-[#00C853] border-[#00C853]/30' :
+                detailItem.status === 'in-progress' ? 'bg-[#2196F3]/15 text-[#2196F3] border-[#2196F3]/30' :
+                'bg-[#F4C430]/15 text-[#F4C430] border-[#F4C430]/30'
+              }`}>
+                {detailItem.status === 'in-progress' ? 'In Progress' : detailItem.status === 'completed' ? 'Completed' : 'Pending'}
+              </span>
+            </div>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div><span className="text-[#666]">Client:</span> <span className="text-white">{detailItem.clientName}</span></div>
               <div><span className="text-[#666]">Project:</span> <span className="text-white">{detailItem.projectName}</span></div>
@@ -192,14 +204,6 @@ export default function WaitingPage() {
               </div>
             )}
             <WaitingTasks item={detailItem} />
-            {isAdmin && detailItem.status !== 'completed' && (
-              <div className="flex justify-end gap-2 pt-2 border-t border-[#2A2A2A]">
-                <button onClick={() => setEditing(detailItem)} className="btn-secondary text-sm">Edit</button>
-                <button onClick={() => { handleComplete(detailItem.id); setDetailItem(null); }} className="btn-primary text-sm flex items-center gap-1.5">
-                  <CheckCircle className="w-4 h-4" /> Mark Completed
-                </button>
-              </div>
-            )}
           </div>
         )}
       </Modal>

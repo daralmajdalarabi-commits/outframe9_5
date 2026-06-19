@@ -1,17 +1,20 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useWaitingStore } from '../stores/waitingStore';
+import { useOrgTaskStore } from '../stores/orgTaskStore';
 import { useFinanceStore } from '../stores/financeStore';
 import { useAdsStore } from '../stores/adsStore';
-import { Clock, CheckCircle, TrendingUp, Megaphone, DollarSign, Users } from 'lucide-react';
+import { Clock, CheckCircle, TrendingUp, Megaphone, ListChecks } from 'lucide-react';
 
 export default function DashboardPage() {
   const { items, tasks, loadItems } = useWaitingStore();
+  const { tasks: orgTasks, loadTasks: loadOrgTasks } = useOrgTaskStore();
   const { costs, orders, loadCosts, loadOrders } = useFinanceStore();
   const { campaigns, loadCampaigns } = useAdsStore();
 
   useEffect(() => {
     loadItems();
+    loadOrgTasks();
     loadCosts();
     loadOrders();
     loadCampaigns();
@@ -22,12 +25,13 @@ export default function DashboardPage() {
   const netProfit = totalRevenue - totalCosts;
   const pendingItems = items.filter((i: any) => i.status !== 'completed').length;
   const completedTasks = tasks.filter((t: any) => t.completed).length;
+  const orgTasksDone = orgTasks.filter((t: any) => t.completed).length;
   const totalSpend = campaigns.reduce((s: number, c: any) => s + c.spend, 0);
 
   const stats = [
     { label: 'Pending Requests', value: pendingItems, icon: Clock, color: '#F4C430', desc: `${items.length} total` },
-    { label: 'Tasks Completed', value: completedTasks, icon: CheckCircle, color: '#00C853', desc: `${tasks.length} total tasks` },
-    { label: 'Net Profit', value: `$${netProfit.toLocaleString()}`, icon: TrendingUp, color: netProfit >= 0 ? '#00C853' : '#FF1744', desc: `${((netProfit / (totalRevenue || 1)) * 100).toFixed(1)}% margin` },
+    { label: 'Waiting Tasks Done', value: completedTasks, icon: CheckCircle, color: '#00C853', desc: `${tasks.length} total` },
+    { label: 'Org Tasks Done', value: orgTasksDone, icon: ListChecks, color: '#CE93D8', desc: `${orgTasks.length} total` },
     { label: 'Ad Spend', value: `$${totalSpend.toLocaleString()}`, icon: Megaphone, color: '#F4C430', desc: `${campaigns.length} campaigns` },
   ];
 
@@ -38,7 +42,7 @@ export default function DashboardPage() {
         <p className="text-sm text-[#666] mt-1">Executive overview of your operations</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, i) => {
           const Icon = stat.icon;
           return (

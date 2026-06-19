@@ -4,6 +4,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
 } from 'recharts';
 import { useWaitingStore } from '../../stores/waitingStore';
+import { useOrgTaskStore } from '../../stores/orgTaskStore';
 import { useFinanceStore } from '../../stores/financeStore';
 
 const ChartTooltip = ({ active, payload, label }: any) => {
@@ -22,6 +23,7 @@ const ChartTooltip = ({ active, payload, label }: any) => {
 
 export default function OperationsCharts() {
   const { items, tasks } = useWaitingStore();
+  const { tasks: orgTasks } = useOrgTaskStore();
   const { orders } = useFinanceStore();
 
   const statusData = useMemo(() => {
@@ -32,15 +34,23 @@ export default function OperationsCharts() {
     }));
   }, [items]);
 
-  const taskCompletionData = useMemo(() => {
-    const allTasks = tasks;
-    const done = allTasks.filter((t) => t.completed).length;
-    const remaining = allTasks.length - done;
+  const waitingTaskCompletion = useMemo(() => {
+    const done = tasks.filter((t) => t.completed).length;
+    const remaining = tasks.length - done;
     return [
       { name: 'Completed', count: done },
       { name: 'Pending', count: remaining },
     ];
   }, [tasks]);
+
+  const orgTaskCompletion = useMemo(() => {
+    const done = orgTasks.filter((t) => t.completed).length;
+    const remaining = orgTasks.length - done;
+    return [
+      { name: 'Completed', count: done },
+      { name: 'Pending', count: remaining },
+    ];
+  }, [orgTasks]);
 
   const amountByClient = useMemo(() => {
     return items.slice(0, 10).map((i) => ({
@@ -80,19 +90,16 @@ export default function OperationsCharts() {
         transition={{ delay: 0.1 }}
         className="card p-5"
       >
-        <h3 className="text-sm font-semibold text-white mb-4">Task Completion</h3>
+        <h3 className="text-sm font-semibold text-white mb-4">Waiting Task Completion</h3>
         <ResponsiveContainer width="100%" height={250}>
           <PieChart>
             <Pie
-              data={taskCompletionData}
-              cx="50%"
-              cy="50%"
-              innerRadius={60}
-              outerRadius={90}
-              dataKey="count"
-              stroke="none"
+              data={waitingTaskCompletion}
+              cx="50%" cy="50%"
+              innerRadius={60} outerRadius={90}
+              dataKey="count" stroke="none"
             >
-              {taskCompletionData.map((_, i) => (
+              {waitingTaskCompletion.map((_, i) => (
                 <Cell key={i} fill={i === 0 ? '#00C853' : '#666'} fillOpacity={0.8} />
               ))}
             </Pie>
@@ -100,7 +107,7 @@ export default function OperationsCharts() {
           </PieChart>
         </ResponsiveContainer>
         <div className="flex justify-center gap-4 mt-2">
-          {taskCompletionData.map((item, i) => (
+          {waitingTaskCompletion.map((item, i) => (
             <div key={item.name} className="flex items-center gap-1.5">
               <div className="w-2 h-2 rounded-full" style={{ backgroundColor: i === 0 ? '#00C853' : '#666' }} />
               <span className="text-[10px] text-[#666]">{item.name} ({item.count})</span>
@@ -112,8 +119,40 @@ export default function OperationsCharts() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+        className="card p-5"
+      >
+        <h3 className="text-sm font-semibold text-white mb-4">Org Task Completion</h3>
+        <ResponsiveContainer width="100%" height={250}>
+          <PieChart>
+            <Pie
+              data={orgTaskCompletion}
+              cx="50%" cy="50%"
+              innerRadius={60} outerRadius={90}
+              dataKey="count" stroke="none"
+            >
+              {orgTaskCompletion.map((_, i) => (
+                <Cell key={i} fill={i === 0 ? '#CE93D8' : '#666'} fillOpacity={0.8} />
+              ))}
+            </Pie>
+            <Tooltip content={<ChartTooltip />} />
+          </PieChart>
+        </ResponsiveContainer>
+        <div className="flex justify-center gap-4 mt-2">
+          {orgTaskCompletion.map((item, i) => (
+            <div key={item.name} className="flex items-center gap-1.5">
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: i === 0 ? '#CE93D8' : '#666' }} />
+              <span className="text-[10px] text-[#666]">{item.name} ({item.count})</span>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="card p-5 lg:col-span-2"
+        className="card p-5"
       >
         <h3 className="text-sm font-semibold text-white mb-4">Request Amounts by Client</h3>
         <ResponsiveContainer width="100%" height={250}>

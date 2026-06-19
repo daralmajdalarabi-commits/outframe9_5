@@ -4,6 +4,7 @@ import AuthPage from './pages/AuthPage';
 import DashboardLayout from './components/layout/DashboardLayout';
 import DashboardPage from './pages/DashboardPage';
 import WaitingPage from './pages/WaitingPage';
+import OrgTasksPage from './pages/OrgTasksPage';
 import FinancePage from './pages/FinancePage';
 import AdsPage from './pages/AdsPage';
 import AnalyticsPage from './pages/AnalyticsPage';
@@ -30,6 +31,7 @@ export default function App() {
         >
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/waiting" element={<WaitingPage />} />
+          <Route path="/orgtasks" element={<OrgTasksPage />} />
           <Route path="/finance" element={<FinancePage />} />
           <Route path="/ads" element={<AdsPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />

@@ -7,11 +7,13 @@ import {
   Megaphone,
   BarChart3,
   Shield,
+  ListChecks,
 } from 'lucide-react';
 
 const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', color: '#8B0000' },
   { to: '/waiting', icon: Clock, label: 'Waiting List', color: '#F4C430' },
+  { to: '/orgtasks', icon: ListChecks, label: 'Org Tasks', color: '#CE93D8' },
   { to: '/finance', icon: Wallet, label: 'Finance', color: '#00C853' },
   { to: '/ads', icon: Megaphone, label: 'Marketing', color: '#2196F3' },
   { to: '/analytics', icon: BarChart3, label: 'Analytics', color: '#CE93D8' },
