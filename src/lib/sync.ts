@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import db from '../db/db';
-import type { Project, Task, Cost, Order, Campaign } from '../types';
+import type { WaitingItem, WaitingTask, Cost, Order, Campaign } from '../types';
 
 const GIST_ID = '344e76c9939d8ceaa8a59e49f342b90a';
 const GIST_API = `https://api.github.com/gists/${GIST_ID}`;
@@ -8,8 +8,8 @@ const RAW_URL = `https://gist.githubusercontent.com/daralmajdalarabi-commits/${G
 const TOKEN = ['gho_', 'ZJcScmuWuaKjJFSDdz6Woyl2fhPo1X1FTRrv'].join('');
 
 export interface GistData {
-  projects: Project[];
-  tasks: Task[];
+  waitingItems: WaitingItem[];
+  waitingTasks: WaitingTask[];
   costs: Cost[];
   orders: Order[];
   campaigns: Campaign[];
@@ -76,14 +76,14 @@ export async function pushData(data: GistData): Promise<boolean> {
 }
 
 export async function pushAllData(): Promise<boolean> {
-  const projects = await db.projects.toArray();
-  const tasks = await db.tasks.toArray();
+  const waitingItems = await db.waitingItems.toArray();
+  const waitingTasks = await db.waitingTasks.toArray();
   const costs = await db.costs.toArray();
   const orders = await db.orders.toArray();
   const campaigns = await db.campaigns.toArray();
   return pushData({
-    projects,
-    tasks,
+    waitingItems,
+    waitingTasks,
     costs,
     orders,
     campaigns,

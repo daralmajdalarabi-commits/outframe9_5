@@ -3,7 +3,7 @@ import { useAuthStore } from './stores/authStore';
 import AuthPage from './pages/AuthPage';
 import DashboardLayout from './components/layout/DashboardLayout';
 import DashboardPage from './pages/DashboardPage';
-import OperationsPage from './pages/OperationsPage';
+import WaitingPage from './pages/WaitingPage';
 import FinancePage from './pages/FinancePage';
 import AdsPage from './pages/AdsPage';
 import AnalyticsPage from './pages/AnalyticsPage';
@@ -29,7 +29,7 @@ export default function App() {
           }
         >
           <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/operations" element={<OperationsPage />} />
+          <Route path="/waiting" element={<WaitingPage />} />
           <Route path="/finance" element={<FinancePage />} />
           <Route path="/ads" element={<AdsPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />

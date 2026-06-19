@@ -3,8 +3,8 @@ import { motion } from 'framer-motion';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
 } from 'recharts';
-import { useProjectStore } from '../../stores/projectStore';
-import { useTaskStore } from '../../stores/taskStore';
+import { useWaitingStore } from '../../stores/waitingStore';
+import { useFinanceStore } from '../../stores/financeStore';
 
 const ChartTooltip = ({ active, payload, label }: any) => {
   if (active && payload?.length) {
@@ -12,7 +12,7 @@ const ChartTooltip = ({ active, payload, label }: any) => {
       <div className="glass px-3 py-2 rounded-lg border border-[#2A2A2A] shadow-xl">
         <p className="text-xs text-[#A0A0A0]">{label}</p>
         {payload.map((entry: any, i: number) => (
-          <p key={i} className="text-sm font-semibold" style={{ color: entry.color }}>{entry.value}{entry.name === '%' ? '%' : ''}</p>
+          <p key={i} className="text-sm font-semibold" style={{ color: entry.color }}>{entry.value}</p>
         ))}
       </div>
     );
@@ -21,35 +21,35 @@ const ChartTooltip = ({ active, payload, label }: any) => {
 };
 
 export default function OperationsCharts() {
-  const { projects } = useProjectStore();
-  const { tasks } = useTaskStore();
+  const { items, tasks } = useWaitingStore();
+  const { orders } = useFinanceStore();
 
-  const projectProgressData = useMemo(() => {
-    return projects.slice(0, 10).map((p) => ({
-      name: p.name.length > 12 ? p.name.slice(0, 12) + '...' : p.name,
-      progress: p.progress,
+  const statusData = useMemo(() => {
+    const statuses = ['pending', 'in-progress', 'completed'];
+    return statuses.map((s) => ({
+      name: s === 'in-progress' ? 'In Progress' : s.charAt(0).toUpperCase() + s.slice(1),
+      count: items.filter((i) => i.status === s).length,
     }));
-  }, [projects]);
+  }, [items]);
 
   const taskCompletionData = useMemo(() => {
-    const statuses = ['backlog', 'todo', 'in-progress', 'review', 'completed'];
-    return statuses.map((s) => ({
-      name: s.charAt(0).toUpperCase() + s.slice(1),
-      count: tasks.filter((t) => t.status === s).length,
+    const allTasks = tasks;
+    const done = allTasks.filter((t) => t.completed).length;
+    const remaining = allTasks.length - done;
+    return [
+      { name: 'Completed', count: done },
+      { name: 'Pending', count: remaining },
+    ];
+  }, [tasks]);
+
+  const amountByClient = useMemo(() => {
+    return items.slice(0, 10).map((i) => ({
+      name: i.clientName.length > 12 ? i.clientName.slice(0, 12) + '...' : i.clientName,
+      amount: i.amount,
     }));
-  }, [tasks]);
+  }, [items]);
 
-  const teamWorkloadData = useMemo(() => {
-    const workload: Record<string, number> = {};
-    tasks.forEach((t) => {
-      if (t.status !== 'completed') {
-        workload[t.assignedTo] = (workload[t.assignedTo] || 0) + t.estimatedHours;
-      }
-    });
-    return Object.entries(workload).map(([name, hours]) => ({ name, hours }));
-  }, [tasks]);
-
-  const COLORS = ['#FF1744', '#FF9800', '#F4C430', '#CE93D8', '#00C853'];
+  const COLORS = ['#F4C430', '#2196F3', '#00C853'];
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
@@ -58,16 +58,16 @@ export default function OperationsCharts() {
         animate={{ opacity: 1, y: 0 }}
         className="card p-5"
       >
-        <h3 className="text-sm font-semibold text-white mb-4">Project Progress</h3>
+        <h3 className="text-sm font-semibold text-white mb-4">Requests by Status</h3>
         <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={projectProgressData}>
+          <BarChart data={statusData}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
             <XAxis dataKey="name" tick={{ fill: '#666', fontSize: 11 }} axisLine={false} tickLine={false} />
-            <YAxis tick={{ fill: '#666', fontSize: 11 }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fill: '#666', fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
             <Tooltip content={<ChartTooltip />} />
-            <Bar dataKey="progress" fill="#8B0000" radius={[4, 4, 0, 0]} maxBarSize={40}>
-              {projectProgressData.map((_, i) => (
-                <Cell key={i} fill={i % 2 === 0 ? '#8B0000' : '#F4C430'} fillOpacity={0.8} />
+            <Bar dataKey="count" radius={[4, 4, 0, 0]} maxBarSize={60}>
+              {statusData.map((_, i) => (
+                <Cell key={i} fill={COLORS[i]} fillOpacity={0.8} />
               ))}
             </Bar>
           </BarChart>
@@ -80,7 +80,7 @@ export default function OperationsCharts() {
         transition={{ delay: 0.1 }}
         className="card p-5"
       >
-        <h3 className="text-sm font-semibold text-white mb-4">Task Completion Rate</h3>
+        <h3 className="text-sm font-semibold text-white mb-4">Task Completion</h3>
         <ResponsiveContainer width="100%" height={250}>
           <PieChart>
             <Pie
@@ -93,7 +93,7 @@ export default function OperationsCharts() {
               stroke="none"
             >
               {taskCompletionData.map((_, i) => (
-                <Cell key={i} fill={COLORS[i]} fillOpacity={0.8} />
+                <Cell key={i} fill={i === 0 ? '#00C853' : '#666'} fillOpacity={0.8} />
               ))}
             </Pie>
             <Tooltip content={<ChartTooltip />} />
@@ -102,8 +102,8 @@ export default function OperationsCharts() {
         <div className="flex justify-center gap-4 mt-2">
           {taskCompletionData.map((item, i) => (
             <div key={item.name} className="flex items-center gap-1.5">
-              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[i] }} />
-              <span className="text-[10px] text-[#666]">{item.name}</span>
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: i === 0 ? '#00C853' : '#666' }} />
+              <span className="text-[10px] text-[#666]">{item.name} ({item.count})</span>
             </div>
           ))}
         </div>
@@ -115,14 +115,14 @@ export default function OperationsCharts() {
         transition={{ delay: 0.2 }}
         className="card p-5 lg:col-span-2"
       >
-        <h3 className="text-sm font-semibold text-white mb-4">Team Workload (Active Hours)</h3>
+        <h3 className="text-sm font-semibold text-white mb-4">Request Amounts by Client</h3>
         <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={teamWorkloadData.length > 0 ? teamWorkloadData : [{ name: 'No tasks', hours: 0 }]} layout="vertical">
+          <BarChart data={amountByClient.length > 0 ? amountByClient : [{ name: 'No requests', amount: 0 }]} layout="vertical">
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
             <XAxis type="number" tick={{ fill: '#666', fontSize: 11 }} axisLine={false} tickLine={false} />
             <YAxis dataKey="name" type="category" tick={{ fill: '#A0A0A0', fontSize: 11 }} axisLine={false} tickLine={false} width={100} />
             <Tooltip content={<ChartTooltip />} />
-            <Bar dataKey="hours" fill="#F4C430" radius={[0, 4, 4, 0]} fillOpacity={0.8} maxBarSize={30} />
+            <Bar dataKey="amount" fill="#F4C430" radius={[0, 4, 4, 0]} fillOpacity={0.8} maxBarSize={30} />
           </BarChart>
         </ResponsiveContainer>
       </motion.div>

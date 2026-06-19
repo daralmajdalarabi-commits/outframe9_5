@@ -6,52 +6,34 @@ export interface AuthState {
   code: string | null;
 }
 
-export type ProjectPriority = 'critical' | 'high' | 'medium' | 'low';
-export type ProjectStatus = 'planning' | 'active' | 'on-hold' | 'completed' | 'cancelled';
-export type TaskStatus = 'backlog' | 'todo' | 'in-progress' | 'review' | 'completed';
-export type TaskPriority = 'critical' | 'high' | 'medium' | 'low';
+export interface WaitingItem {
+  id: string;
+  clientName: string;
+  projectName: string;
+  details: string;
+  attachments: Attachment[];
+  date: string;
+  amount: number;
+  status: 'pending' | 'in-progress' | 'completed';
+  createdAt: string;
+  updatedAt: string;
+}
 
-export interface Project {
+export interface WaitingTask {
+  id: string;
+  waitingItemId: string;
+  details: string;
+  assignedTo: string;
+  completed: boolean;
+  createdAt: string;
+}
+
+export interface Attachment {
   id: string;
   name: string;
-  description: string;
-  client: string;
-  startDate: string;
-  endDate: string;
-  status: ProjectStatus;
-  progress: number;
-  priority: ProjectPriority;
-  budget: number;
-  teamMembers: string[];
-  notes: string;
-  attachments: string[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Task {
-  id: string;
-  projectId: string;
-  title: string;
-  description: string;
-  assignedTo: string;
-  startDate: string;
-  dueDate: string;
-  priority: TaskPriority;
-  status: TaskStatus;
-  estimatedHours: number;
-  attachments: string[];
-  comments: Comment[];
-  notes: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Comment {
-  id: string;
-  author: string;
-  text: string;
-  createdAt: string;
+  type: string;
+  data: string;
+  size: number;
 }
 
 export interface Cost {
@@ -87,5 +69,3 @@ export interface Campaign {
   status: 'active' | 'paused' | 'completed' | 'draft';
   createdAt: string;
 }
-
-export type ViewType = 'kanban' | 'table' | 'timeline' | 'weekly' | 'calendar';

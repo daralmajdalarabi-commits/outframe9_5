@@ -1,20 +1,17 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useProjectStore } from '../stores/projectStore';
-import { useTaskStore } from '../stores/taskStore';
+import { useWaitingStore } from '../stores/waitingStore';
 import { useFinanceStore } from '../stores/financeStore';
 import { useAdsStore } from '../stores/adsStore';
-import { Briefcase, Megaphone, TrendingUp, Target } from 'lucide-react';
+import { Clock, CheckCircle, TrendingUp, Megaphone, DollarSign, Users } from 'lucide-react';
 
 export default function DashboardPage() {
-  const { projects, loadProjects } = useProjectStore();
-  const { tasks, loadTasks } = useTaskStore();
+  const { items, tasks, loadItems } = useWaitingStore();
   const { costs, orders, loadCosts, loadOrders } = useFinanceStore();
   const { campaigns, loadCampaigns } = useAdsStore();
 
   useEffect(() => {
-    loadProjects();
-    loadTasks();
+    loadItems();
     loadCosts();
     loadOrders();
     loadCampaigns();
@@ -23,13 +20,13 @@ export default function DashboardPage() {
   const totalRevenue = orders.reduce((s: number, o: any) => s + o.value, 0);
   const totalCosts = costs.reduce((s: number, c: any) => s + c.amount, 0);
   const netProfit = totalRevenue - totalCosts;
-  const activeProjects = projects.filter((p: any) => p.status === 'active').length;
-  const completedTasks = tasks.filter((t: any) => t.status === 'completed').length;
+  const pendingItems = items.filter((i: any) => i.status !== 'completed').length;
+  const completedTasks = tasks.filter((t: any) => t.completed).length;
   const totalSpend = campaigns.reduce((s: number, c: any) => s + c.spend, 0);
 
   const stats = [
-    { label: 'Active Projects', value: activeProjects, icon: Briefcase, color: '#8B0000', desc: `${projects.length} total` },
-    { label: 'Tasks Completed', value: completedTasks, icon: Target, color: '#00C853', desc: `${tasks.length} total tasks` },
+    { label: 'Pending Requests', value: pendingItems, icon: Clock, color: '#F4C430', desc: `${items.length} total` },
+    { label: 'Tasks Completed', value: completedTasks, icon: CheckCircle, color: '#00C853', desc: `${tasks.length} total tasks` },
     { label: 'Net Profit', value: `$${netProfit.toLocaleString()}`, icon: TrendingUp, color: netProfit >= 0 ? '#00C853' : '#FF1744', desc: `${((netProfit / (totalRevenue || 1)) * 100).toFixed(1)}% margin` },
     { label: 'Ad Spend', value: `$${totalSpend.toLocaleString()}`, icon: Megaphone, color: '#F4C430', desc: `${campaigns.length} campaigns` },
   ];
@@ -72,23 +69,27 @@ export default function DashboardPage() {
           transition={{ delay: 0.3 }}
           className="card p-5"
         >
-          <h3 className="text-sm font-semibold text-white mb-3">Recent Projects</h3>
+          <h3 className="text-sm font-semibold text-white mb-3">Recent Requests</h3>
           <div className="space-y-2">
-            {projects.slice(0, 5).map((p: any) => (
-              <div key={p.id} className="flex items-center justify-between py-2 border-b border-[#2A2A2A]/50 last:border-0">
+            {items.slice(0, 5).map((i: any) => (
+              <div key={i.id} className="flex items-center justify-between py-2 border-b border-[#2A2A2A]/50 last:border-0">
                 <div>
-                  <p className="text-sm text-white">{p.name}</p>
-                  <p className="text-xs text-[#666]">{p.client}</p>
+                  <p className="text-sm text-white">{i.clientName}</p>
+                  <p className="text-xs text-[#666]">{i.projectName}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="h-1.5 w-16 rounded-full bg-white/[0.05] overflow-hidden">
-                    <div className="h-full rounded-full bg-gradient-to-r from-[#8B0000] to-[#F4C430]" style={{ width: `${p.progress}%` }} />
-                  </div>
-                  <span className="text-xs text-[#666] w-8 text-right">{p.progress}%</span>
+                  <span className={`badge text-[10px] ${
+                    i.status === 'completed' ? 'bg-[#00C853]/15 text-[#00C853] border-[#00C853]/30' :
+                    i.status === 'in-progress' ? 'bg-[#2196F3]/15 text-[#2196F3] border-[#2196F3]/30' :
+                    'bg-[#F4C430]/15 text-[#F4C430] border-[#F4C430]/30'
+                  }`}>
+                    {i.status === 'completed' ? 'Done' : i.status === 'in-progress' ? 'Active' : 'Pending'}
+                  </span>
+                  <span className="text-xs text-[#666]">${i.amount?.toLocaleString()}</span>
                 </div>
               </div>
             ))}
-            {projects.length === 0 && <p className="text-sm text-[#666] text-center py-4">No projects yet</p>}
+            {items.length === 0 && <p className="text-sm text-[#666] text-center py-4">No requests yet</p>}
           </div>
         </motion.div>
 

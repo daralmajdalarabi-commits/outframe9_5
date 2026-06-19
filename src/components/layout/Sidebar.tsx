@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   LayoutDashboard,
-  Briefcase,
+  Clock,
   Wallet,
   Megaphone,
   BarChart3,
@@ -11,7 +11,7 @@ import {
 
 const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', color: '#8B0000' },
-  { to: '/operations', icon: Briefcase, label: 'Operations', color: '#F4C430' },
+  { to: '/waiting', icon: Clock, label: 'Waiting List', color: '#F4C430' },
   { to: '/finance', icon: Wallet, label: 'Finance', color: '#00C853' },
   { to: '/ads', icon: Megaphone, label: 'Marketing', color: '#2196F3' },
   { to: '/analytics', icon: BarChart3, label: 'Analytics', color: '#CE93D8' },

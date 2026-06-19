@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
-import { useProjectStore } from '../stores/projectStore';
-import { useTaskStore } from '../stores/taskStore';
+import { useWaitingStore } from '../stores/waitingStore';
 import { useFinanceStore } from '../stores/financeStore';
 import { useAdsStore } from '../stores/adsStore';
 import OperationsCharts from '../components/analytics/OperationsCharts';
@@ -8,14 +7,12 @@ import FinanceCharts from '../components/analytics/FinanceCharts';
 import AdsCharts from '../components/analytics/AdsCharts';
 
 export default function AnalyticsPage() {
-  const { loadProjects } = useProjectStore();
-  const { loadTasks } = useTaskStore();
+  const { loadItems } = useWaitingStore();
   const { loadCosts, loadOrders } = useFinanceStore();
   const { loadCampaigns } = useAdsStore();
 
   useEffect(() => {
-    loadProjects();
-    loadTasks();
+    loadItems();
     loadCosts();
     loadOrders();
     loadCampaigns();
@@ -31,7 +28,7 @@ export default function AnalyticsPage() {
       <div>
         <h2 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-[#8B0000]" />
-          Operations
+          Waiting List
         </h2>
         <OperationsCharts />
       </div>
