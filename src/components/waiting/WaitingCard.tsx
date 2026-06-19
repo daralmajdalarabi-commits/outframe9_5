@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { useAuthStore } from '../../stores/authStore';
 import { useWaitingStore } from '../../stores/waitingStore';
 import type { WaitingItem, WaitingTask } from '../../types';
-import { Clock, CheckCircle, Circle, User, DollarSign, Calendar, Paperclip, Loader, ArrowUpCircle } from 'lucide-react';
+import { Clock, CheckCircle, Circle, User, DollarSign, Calendar, Paperclip, Loader, ArrowUpCircle, Trash2 } from 'lucide-react';
 
 interface Props {
   item: WaitingItem;
@@ -63,15 +63,26 @@ export default function WaitingCard({ item, tasks, onEdit, onDelete, onOpen }: P
         </div>
         <div className="flex items-center gap-1 ml-2">
           {isAdmin && (
-            <motion.button
-              whileHover={{ scale: 1.15 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={cycleStatus}
-              className="w-7 h-7 rounded-lg bg-white/[0.05] border border-[#2A2A2A] flex items-center justify-center hover:bg-white/[0.1] transition-colors"
-              title={item.status === 'completed' ? 'Revert to In Progress' : `Move to ${nextStatus[item.status] === 'in-progress' ? 'In Progress' : 'Completed'}`}
-            >
-              <ArrowUpCircle className="w-3.5 h-3.5 text-[#A0A0A0]" />
-            </motion.button>
+            <>
+              <motion.button
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={(e) => { e.stopPropagation(); onDelete(item.id); }}
+                className="w-7 h-7 rounded-lg bg-white/[0.05] border border-[#2A2A2A] flex items-center justify-center hover:bg-[#FF1744]/20 hover:border-[#FF1744]/30 transition-all"
+                title="Delete request"
+              >
+                <Trash2 className="w-3.5 h-3.5 text-[#A0A0A0] group-hover:text-[#FF1744]" />
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={cycleStatus}
+                className="w-7 h-7 rounded-lg bg-white/[0.05] border border-[#2A2A2A] flex items-center justify-center hover:bg-white/[0.1] transition-colors"
+                title={item.status === 'completed' ? 'Revert to In Progress' : `Move to ${nextStatus[item.status] === 'in-progress' ? 'In Progress' : 'Completed'}`}
+              >
+                <ArrowUpCircle className="w-3.5 h-3.5 text-[#A0A0A0]" />
+              </motion.button>
+            </>
           )}
         </div>
       </div>

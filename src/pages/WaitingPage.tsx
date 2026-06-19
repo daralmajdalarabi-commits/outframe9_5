@@ -212,6 +212,12 @@ export default function WaitingPage() {
             {isAdmin && (
               <div className="flex justify-end gap-2 pt-3 border-t border-[#2A2A2A]">
                 <button
+                  onClick={() => { deleteItem(detailItem.id); notify('success', 'Request deleted'); setDetailItem(null); }}
+                  className="btn-primary text-sm flex items-center gap-1.5 !bg-[#FF1744]/10 !text-[#FF1744] !border-[#FF1744]/30 hover:!bg-[#FF1744]/20"
+                >
+                  Delete
+                </button>
+                <button
                   onClick={() => { toggleComplete(detailItem.id); setDetailItem(null); }}
                   className={`btn-primary text-sm flex items-center gap-1.5 ${
                     detailItem.status === 'completed' ? '!bg-[#2196F3]/20 !text-[#2196F3] !border-[#2196F3]/30' : ''
