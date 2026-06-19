@@ -75,20 +75,25 @@ export default function WaitingPage() {
     setEditing(null);
   };
 
-  const handleComplete = (id: string) => {
+  const toggleComplete = (id: string) => {
     const item = items.find((i) => i.id === id);
     if (!item) return;
-    updateItem(id, { status: 'completed' });
-    addOrder({
-      id: generateId(),
-      client: item.clientName,
-      title: item.projectName,
-      value: item.amount,
-      date: new Date().toISOString().split('T')[0],
-      notes: `Auto-generated from completed waiting request: ${item.details}`,
-      createdAt: new Date().toISOString(),
-    });
-    notify('success', `Request completed: ${item.amount.toLocaleString()} added to orders`);
+    if (item.status === 'completed') {
+      updateItem(id, { status: 'in-progress' });
+      notify('success', 'Request reverted to In Progress');
+    } else {
+      updateItem(id, { status: 'completed' });
+      addOrder({
+        id: generateId(),
+        client: item.clientName,
+        title: item.projectName,
+        value: item.amount,
+        date: new Date().toISOString().split('T')[0],
+        notes: `Auto-generated from completed waiting request: ${item.details}`,
+        createdAt: new Date().toISOString(),
+      });
+      notify('success', `Request completed: ${item.amount.toLocaleString()} added to orders`);
+    }
   };
 
   return (
@@ -204,6 +209,18 @@ export default function WaitingPage() {
               </div>
             )}
             <WaitingTasks item={detailItem} />
+            {isAdmin && (
+              <div className="flex justify-end gap-2 pt-3 border-t border-[#2A2A2A]">
+                <button
+                  onClick={() => { toggleComplete(detailItem.id); setDetailItem(null); }}
+                  className={`btn-primary text-sm flex items-center gap-1.5 ${
+                    detailItem.status === 'completed' ? '!bg-[#2196F3]/20 !text-[#2196F3] !border-[#2196F3]/30' : ''
+                  }`}
+                >
+                  {detailItem.status === 'completed' ? 'Revert to In Progress' : 'Mark Completed'}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </Modal>
